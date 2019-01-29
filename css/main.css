@@ -1,0 +1,21 @@
+* {
+  padding: 0;
+  margin: 0;
+  box-sizing: border-box;
+}
+
+/* Helpers Start */
+.iti-flag {
+  background-image: url("../img/flags.png");
+}
+
+@media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi) {
+  .iti-flag {
+    background-image: url("../img/flags@2x.png");
+  }
+}
+/* Helpers End */
+/* dashboard Start */
+/* dashboard End */
+
+/*# sourceMappingURL=main.css.map */

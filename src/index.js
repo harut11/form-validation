@@ -19,11 +19,10 @@ $(document).ready(function() {
     });
 
     $('input[data-valid]').on('keyup', (event) => {
-       formValidate($(event.target).val());
-        console.log($(this).attr());
+       formValidate($(event.target), $(event.target).val());
     });
 
-    let formValidate = (val) => {
+    let formValidate = (element, value) => {
         let errorTexts = [
             'This field is required',
             'This field value must be higher then',
@@ -32,10 +31,17 @@ $(document).ready(function() {
             'This field value must be number',
         ];
 
-        $('input[data-valid]').each(function () {
+        let feedback = $('input + div');
 
-            console.log(val);
-        })
+        let rules = element.attr('data-valid');
+        let rule = rules.split('|');
+        console.log(rule);
+
+        if($.inArray('required ', rule) && value.length === 0) {
+            feedback.removeClass('valid');
+            feedback.addClass('is-invalid');
+            feedback.text(errorTexts[0]);
+        }
     };
 
     $(`.submit`).click((event) => {

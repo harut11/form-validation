@@ -16,8 +16,14 @@
 }
 /* Helpers End */
 /* dashboard Start */
-.is-invalid {
+.feedback {
+  font-size: 14px;
+}
+.feedback.is-invalid {
   color: red;
+}
+.feedback.is-valid {
+  color: green;
 }
 
 /* dashboard End */

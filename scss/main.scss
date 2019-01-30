@@ -13,7 +13,13 @@
 /* Helpers End */
 
 /* dashboard Start */
-.is-invalid {
-  color: red;
+.feedback {
+  font-size: 14px;
+  &.is-invalid {
+    color: red;
+  }
+  &.is-valid {
+    color: green;
+  }
 }
 /* dashboard End */

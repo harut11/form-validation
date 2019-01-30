@@ -19,69 +19,59 @@
                             <div class="form-group col-lg-6">
                                 <label for="firstName">First Name</label>
                                 <input type="text" class="form-control" id="firstName"
-                                       placeholder="Enter Your First Name" data-valid="required|min:5">
-                                <div class="feedback is-valid"></div>
+                                       placeholder="Enter Your First Name" data-valid="required|min:4|max:20|string">
+                                <div class="feedback"></div>
                             </div>
                             <div class="form-group col-lg-6">
                                 <label for="lastName">Last Name</label>
                                 <input type="text" class="form-control" id="lastName" placeholder="Enter Your Last Name"
-                                       data-valid="'required|max:50">
-                                <div class="feedback is-valid"></div>
+                                       data-valid="required|min:4|max:30|string">
+                                <div class="feedback"></div>
                             </div>
                         </div>
                         <div class="form-row">
                             <div class="form-group col-lg-6">
                                 <label for="email">Email</label>
-                                <input type="email" class="form-control" id="email" placeholder="Enter Your Email">
-                                <div class="valid-feedback">
-                                    Looks good!
-                                </div>
+                                <input type="email" class="form-control" id="email" placeholder="Enter Your Email"
+                                       data-valid="required|min|max|email">
+                                <div class="feedback"></div>
                             </div>
                             <div class="form-group col-lg-6">
                                 <label for="dof">Date Of Birth</label>
-                                <input type="date" class="form-control" id="dof" placeholder="Enter Yuor Date Of Birth">
-                                <div class="valid-feedback">
-                                    Looks good!
-                                </div>
+                                <input type="text" class="form-control" id="dof">
+                                <div class="feedback"></div>
                             </div>
                         </div>
                         <div class="form-group">
                             <label for="aboutYou">About You</label>
-                            <textarea class="form-control" id="aboutYou" rows="3"></textarea>
-                            <div class="valid-feedback">
-                                Looks good!
-                            </div>
+                            <textarea class="form-control" id="aboutYou" rows="3">
+
+                            </textarea>
+                            <div class="feedback"></div>
                         </div>
                         <div class="form-row align-content-center">
                             <div class="col-lg-6">
                                 <div class="form-group">
                                     <label for="phone">Phone Number</label>
-                                    <input type="tel" class="form-control" id="phone">
-                                    <div class="valid-feedback">
-                                        Looks good!
-                                    </div>
+                                    <input type="tel" class="form-control" id="phone" data-valid="required|min:10|max|">
+                                    <div class="valid-feedback"></div>
                                 </div>
                             </div>
                             <div class="col-lg-6">
                                 <div class="form-group">
                                     <label for="address">Address</label>
-                                    <input type="text" class="form-control" id="address" placeholder="Enter Your Address">
-                                    <div class="valid-feedback">
-                                        Looks good!
-                                    </div>
+                                    <input type="text" class="form-control" id="address" placeholder="Enter Your Address"
+                                           data-valid="required|min:5|max:20|">
+                                    <div class="feedback"></div>
                                 </div>
                             </div>
                         </div>
                         <div class="form-row">
                             <div class="col-lg-6">
-                                <div class="custom-control custom-radio custom-control-inline">
-                                    <input type="radio" id="male" name="male" class="custom-control-input">
-                                    <label class="custom-control-label" for="male">Male</label>
-                                </div>
-                                <div class="custom-control custom-radio custom-control-inline">
-                                    <input type="radio" id="female" name="female" class="custom-control-input">
-                                    <label class="custom-control-label" for="female">Female</label>
-                                </div>
+                                <label for="male">Male</label>
+                                <input type="radio" id="male" name="male" value="male">
+                                <label for="female">Female</label>
+                                <input type="radio" id="female" name="female" value="female">
                             </div>
                             <div class="col-lg-6">
                                 <div class="form-group form-check">
@@ -91,7 +81,7 @@
                                     <label class="form-check-label" for="workExperience">Work Experience</label>
                                 </div>
                                 <div class="form-group collapse" id="collapse">
-                                    <input type="text" class="form-control" name="datetimes" data-valid="1">
+                                    <input type="text" class="form-control" name="datetimes" data-valid="">
                                     <div class="valid-feedback">
                                         Looks good!
                                     </div>
@@ -102,35 +92,32 @@
                     <button type="submit" class="btn btn-success mt-3 submit">Submit</button>
                 </div>
                 <div class="col-md-6">
-                    <table id="data-table" class="display">
+                    <table id="data-table" class="display" style="width:100%">
                         <thead>
                         <tr>
-                            <th>Column 1</th>
-                            <th>Column 2</th>
+                            <th>First Name</th>
+                            <th>Last Name</th>
+                            <th>Email</th>
+                            <th>Age</th>
+                            <th>Phone Number</th>
+                            <th>Address</th>
+                            <th>Gender</th>
+                            <th>Work Experience</th>
                         </tr>
                         </thead>
-                        <tbody>
-                        <tr>
-                            <td>Row 1 Data 1</td>
-                            <td>Row 1 Data 2</td>
-                        </tr>
-                        <tr>
-                            <td>Row 2 Data 1</td>
-                            <td>Row 2 Data 2</td>
-                        </tr>
-                        <tr>
-                            <td>Row 2 Data 1</td>
-                            <td>Row 2 Data 2</td>
-                        </tr>
-                        <tr>
-                            <td>Row 2 Data 1</td>
-                            <td>Row 2 Data 2</td>
-                        </tr>
-                        <tr>
-                            <td>Row 2 Data 1</td>
-                            <td>Row 2 Data 2</td>
-                        </tr>
+                        <tbody id="tbody">
+
                         </tbody>
+                        <tfoot>
+                        <tr>
+                            <th>Name</th>
+                            <th>Position</th>
+                            <th>Office</th>
+                            <th>Age</th>
+                            <th>Start date</th>
+                            <th>Salary</th>
+                        </tr>
+                        </tfoot>
                     </table>
                 </div>
             </div>

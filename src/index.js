@@ -1,36 +1,9 @@
 $(document).ready(function() {
     // Intel-tel Section Start
-    let input = $('#phone'),
-        errorMsg = $('#tel-err'),
-        validMsg = $('#tel-valid');
+    let input = document.querySelector('#phone');
 
-    let iti = window.intlTelInput(input, {
-        utilsScript: "../js/utils.js?1537727621611"
-    });
+    window.intlTelInput(input);
 
-    let reset = () => {
-        input.removeClass('error');
-        errorMsg.innerHTML = "";
-        errorMsg.addClass('hide');
-        validMsg.addClass('hide');
-    };
-
-    input.blur(() => {
-       reset();
-       if(input.val().trim()) {
-           if(iti.isValidNumber()) {
-               validMsg.removeClass('hide');
-           } else {
-               input.addClass('error');
-               let errorCode = iti.getValidationError();
-               errorMsg.innerHTML = errorMap[errorCode];
-               errorMsg.removeClass('hide');
-           }
-       }
-    });
-
-    input.on('change', reset);
-    input.on('keyup', reset);
     // Intel-tel Section End
     localStorage.clear();
 
@@ -47,6 +20,7 @@ $(document).ready(function() {
     $('input[id="dof"]').daterangepicker({
         singleDatePicker: true,
         showDropdowns: true,
+        minYear: 1950
     });
 
     $('#data-table').DataTable({
@@ -59,6 +33,10 @@ $(document).ready(function() {
         scroller:       true
     });
 
+    let options = {
+        errors: false,
+    };
+
     $('input[data-valid], textarea[data-valid]').on('keyup', (event) => {
        formValidate($(event.target), $(event.target).val());
     });
@@ -70,7 +48,8 @@ $(document).ready(function() {
             'This field value must be lower then',
             'This field value must be string',
             'This field value must be number',
-            'Email address are not valid'
+            'Email address are not valid',
+            'Number not valid'
         ];
 
         let rules = element.attr('data-valid').split('|');
@@ -100,13 +79,17 @@ $(document).ready(function() {
             email(feedbackDiv, errorTexts, value);
         }
 
+        if(rules[3] === 'phone') {
+            phone(feedbackDiv, errorTexts, value);
+        }
+
     };
 
     let required = (div, text, val) => {
         if(!val) {
             div.removeClass('is-valid');
             div.addClass('is-invalid').text(text[0]);
-            return false;
+            options.errors = true;
         } else {
             div.empty();
         }
@@ -118,7 +101,7 @@ $(document).ready(function() {
             div.empty();
             div.removeClass('is-valid');
             div.addClass('is-invalid').text(text[1] + ' ' + (minimum - 1));
-            return false;
+            options.errors = true;
         }
     };
 
@@ -129,7 +112,7 @@ $(document).ready(function() {
             div.empty();
             div.removeClass('is-valid');
             div.addClass('is-invalid').text(text[2] + ' ' + maximum);
-            return false;
+            options.errors = true;
         }
     };
 
@@ -140,7 +123,7 @@ $(document).ready(function() {
             div.empty();
             div.removeClass('is-valid');
             div.addClass('is-invalid').text(text[3]);
-            return false;
+            options.errors = true;
         }
     };
 
@@ -151,7 +134,7 @@ $(document).ready(function() {
             div.empty();
             div.removeClass('is-valid');
             div.addClass('is-invalid').text(text[4]);
-            return false;
+            options.errors = true;
         }
     };
 
@@ -162,10 +145,31 @@ $(document).ready(function() {
             div.empty();
             div.removeClass('is-valid');
             div.addClass('is-invalid').text(text[5]);
-            return false;
+            options.errors = true;
         } else if (val.match(regex)){
-            div.empty().removeClass('is-invalid').addClass('is-valid').text('Looks Good');
+            div.empty().removeClass('is-invalid').addClass('is-valid').text('✓ Looks Good');
+            options.errors = false;
         }
+    };
+
+    let phone = (div, text, val) => {
+       let regex = /^([+(\d]{1})(([\d+() -.]){5,16})([+(\d]{1})$/;
+
+       if(val && !val.match(regex)) {
+           div.empty();
+           div.removeClass('is-valid').addClass('is-invalid').text(text[6]);
+           options.errors = true;
+       }  else if (val.match(regex)){
+           div.empty().removeClass('is-invalid').addClass('is-valid').text('✓ Looks Good');
+           options.errors = false;
+       }
+
+       if(isNaN(val)) {
+           div.empty();
+           div.removeClass('is-valid').addClass('is-invalid').text(text[4]);
+           console.log(options.errors);
+           options.errors = true;
+       }
     };
 
     let drawdata = () => {
@@ -217,7 +221,10 @@ $(document).ready(function() {
 
     $('.submit').click((event) => {
         event.preventDefault();
-        drawdata();
+
+        if(options.errors === false) {
+            drawdata();
+        } else{return false}
     });
 
 });

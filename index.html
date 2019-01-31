@@ -47,7 +47,7 @@
                         </div>
                         <div class="form-group">
                             <label for="aboutYou">About You</label>
-                            <textarea class="form-control" id="aboutYou" rows="3">
+                            <textarea class="form-control" id="aboutYou" rows="3" data-valid="required|min:10|max:200|">
 
                             </textarea>
                             <div class="feedback"></div>
@@ -56,9 +56,8 @@
                             <div class="col-lg-6">
                                 <div class="form-group">
                                     <label for="phone">Phone Number</label>
-                                    <input type="tel" class="form-control" id="phone" data-valid="required|min:10|max|">
-                                    <div id="tel-err" class="hide"></div>
-                                    <div id="tel-valid" class="hide">✓ Valid</div>
+                                    <input type="tel" class="form-control" id="phone" data-valid="required|min|max|phone">
+                                    <div class="feedback"></div>
                                 </div>
                             </div>
                             <div class="form-group col-lg-6">
@@ -67,32 +66,34 @@
                                 <div class="feedback"></div>
                             </div>
                         </div>
-                        <div class="form-row">
-                            <div class="col-lg-6">
-                                <label for="male">Male</label>
-                                <input type="radio" id="male" class="gender" name="male" value="male">
-                                <label for="female">Female</label>
-                                <input type="radio" id="female" class="gender" name="female" value="female">
+                        <div class="form-row mt-2">
+                            <div class="form-group col-lg-6">
+                                <div class="custom-control custom-radio custom-control-inline">
+                                    <input type="radio" id="male" name="gender" class="custom-control-input" checked>
+                                    <label class="custom-control-label" for="male">Male</label>
+                                </div>
+                                <div class="custom-control custom-radio custom-control-inline">
+                                    <input type="radio" id="female" name="gender" class="custom-control-input">
+                                    <label class="custom-control-label" for="female">Female</label>
+                                </div>
                             </div>
                             <div class="col-lg-6">
-                                <div class="form-group form-check">
-                                    <input type="checkbox" class="form-check-input" id="workExperience"
+                                <div class="custom-control custom-checkbox">
+                                    <input type="checkbox" class="custom-control-input" id="customCheck1"
                                            data-toggle="collapse" data-target="#collapse" aria-expanded="false"
                                            aria-controls="collapse">
-                                    <label class="form-check-label" for="workExperience">Work Experience</label>
+                                    <label class="custom-control-label" for="customCheck1">Work Experience</label>
                                 </div>
                                 <div class="form-group collapse" id="collapse">
-                                    <input type="text" class="form-control" id="work" name="datetimes" data-valid="">
-                                    <div class="valid-feedback">
-                                        Looks good!
-                                    </div>
+                                    <input type="text" class="form-control" id="work" name="datetimes" value="">
+                                    <div class="valid-feedback"></div>
                                 </div>
                             </div>
                         </div>
                     </form>
                     <button type="submit" class="btn btn-success mt-3 submit">Submit</button>
                 </div>
-                <div class="col-md-12">
+                <div class="col-md-12 mt-5">
                     <table id="data-table" class="display" style="width:100%">
                         <thead>
                         <tr>

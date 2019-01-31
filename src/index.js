@@ -1,12 +1,38 @@
 $(document).ready(function() {
-    let input = document.querySelector('#phone');
-    window.intlTelInput(input);
+    // Intel-tel Section Start
+    let input = $('#phone'),
+        errorMsg = $('#tel-err'),
+        validMsg = $('#tel-valid');
 
-    let validation = {
-        persons: [],
+    let iti = window.intlTelInput(input, {
+        utilsScript: "../js/utils.js?1537727621611"
+    });
+
+    let reset = () => {
+        input.removeClass('error');
+        errorMsg.innerHTML = "";
+        errorMsg.addClass('hide');
+        validMsg.addClass('hide');
     };
 
-    console.log(validation.persons);
+    input.blur(() => {
+       reset();
+       if(input.val().trim()) {
+           if(iti.isValidNumber()) {
+               validMsg.removeClass('hide');
+           } else {
+               input.addClass('error');
+               let errorCode = iti.getValidationError();
+               errorMsg.innerHTML = errorMap[errorCode];
+               errorMsg.removeClass('hide');
+           }
+       }
+    });
+
+    input.on('change', reset);
+    input.on('keyup', reset);
+    // Intel-tel Section End
+    localStorage.clear();
 
     $('input[name="datetimes"]').daterangepicker({
         timePicker: true,
@@ -21,8 +47,7 @@ $(document).ready(function() {
     $('input[id="dof"]').daterangepicker({
         singleDatePicker: true,
         showDropdowns: true,
-        minYear: 1901,
-        });
+    });
 
     $('#data-table').DataTable({
         order: [[2, 'asc']],
@@ -146,23 +171,52 @@ $(document).ready(function() {
     let drawdata = () => {
         let tbody = $('#tbody');
         let html = "";
-        let inputVal = $('#firstName').val();
-        localStorage.inputVal = inputVal;
-
-        for(let i = 0; i < validation.persons.length; i++) {
-            html += "<tr>";
-            for(let s = 0; s <= 8; s++) {
-                html += "<td>" + localStorage.inputVal + "</td>";
-            }
-            html += "</tr>"
+        let firstName = $('#firstName').val();
+        let lastName = $('#lastName').val();
+        let setEmail = $('#email').val();
+        let dof = $('#dof').val();
+        let about = $('#aboutYou').val();
+        let phone = $('#phone').val();
+        let address = $('#address').val();
+        let gender = $('.gender').val();
+        let work = $('#work').val();
+        let person = JSON.parse(localStorage.getItem('person'));
+        if(!person) {
+            person = [];
         }
+        person.push( {
+            firstName: firstName,
+            lastName: lastName,
+            email: setEmail,
+            dof: dof,
+            about: about,
+            phone: phone,
+            address: address,
+            gender: gender,
+            work: work
+        });
+        localStorage.setItem('person', JSON.stringify(person));
+
+        $.each(person, (key, value) => {
+                html += "<tr>";
+
+                html += "<td>" + value.firstName + "</td>";
+                html += "<td>" + value.lastName + "</td>";
+                html += "<td>" + value.email + "</td>";
+                html += "<td>" + value.dof + "</td>";
+                html += "<td>" + value.phone + "</td>";
+                html += "<td>" + value.address + "</td>";
+                html += "<td>" + value.gender + "</td>";
+                html += "<td>" + value.work + "</td>";
+
+                html += "</tr>"
+        });
         tbody.empty().append(html);
     };
 
 
     $('.submit').click((event) => {
         event.preventDefault();
-        validation.persons.push('1');
         drawdata();
     });
 

@@ -12,7 +12,7 @@
 <body>
     <section id="dashboard" class="mt-5">
         <div class="container">
-            <div class="row">
+            <div class="row justify-content-center">
                 <div class="col-md-6">
                     <form>
                         <div class="form-row">
@@ -36,10 +36,13 @@
                                        data-valid="required|min|max|email">
                                 <div class="feedback"></div>
                             </div>
-                            <div class="form-group col-lg-6">
-                                <label for="dof">Date Of Birth</label>
-                                <input type="text" class="form-control" id="dof">
-                                <div class="feedback"></div>
+                            <div class="col-lg-6">
+                                <div class="form-group">
+                                    <label for="address">Address</label>
+                                    <input type="text" class="form-control" id="address" placeholder="Enter Your Address"
+                                           data-valid="required|min:5|max:20|">
+                                    <div class="feedback"></div>
+                                </div>
                             </div>
                         </div>
                         <div class="form-group">
@@ -54,24 +57,22 @@
                                 <div class="form-group">
                                     <label for="phone">Phone Number</label>
                                     <input type="tel" class="form-control" id="phone" data-valid="required|min:10|max|">
-                                    <div class="valid-feedback"></div>
+                                    <div id="tel-err" class="hide"></div>
+                                    <div id="tel-valid" class="hide">✓ Valid</div>
                                 </div>
                             </div>
-                            <div class="col-lg-6">
-                                <div class="form-group">
-                                    <label for="address">Address</label>
-                                    <input type="text" class="form-control" id="address" placeholder="Enter Your Address"
-                                           data-valid="required|min:5|max:20|">
-                                    <div class="feedback"></div>
-                                </div>
+                            <div class="form-group col-lg-6">
+                                <label for="dof">Date Of Birth</label>
+                                <input type="text" class="form-control" id="dof">
+                                <div class="feedback"></div>
                             </div>
                         </div>
                         <div class="form-row">
                             <div class="col-lg-6">
                                 <label for="male">Male</label>
-                                <input type="radio" id="male" name="male" value="male">
+                                <input type="radio" id="male" class="gender" name="male" value="male">
                                 <label for="female">Female</label>
-                                <input type="radio" id="female" name="female" value="female">
+                                <input type="radio" id="female" class="gender" name="female" value="female">
                             </div>
                             <div class="col-lg-6">
                                 <div class="form-group form-check">
@@ -81,7 +82,7 @@
                                     <label class="form-check-label" for="workExperience">Work Experience</label>
                                 </div>
                                 <div class="form-group collapse" id="collapse">
-                                    <input type="text" class="form-control" name="datetimes" data-valid="">
+                                    <input type="text" class="form-control" id="work" name="datetimes" data-valid="">
                                     <div class="valid-feedback">
                                         Looks good!
                                     </div>
@@ -91,14 +92,14 @@
                     </form>
                     <button type="submit" class="btn btn-success mt-3 submit">Submit</button>
                 </div>
-                <div class="col-md-6">
+                <div class="col-md-12">
                     <table id="data-table" class="display" style="width:100%">
                         <thead>
                         <tr>
                             <th>First Name</th>
                             <th>Last Name</th>
                             <th>Email</th>
-                            <th>Age</th>
+                            <th>Date Of Birth</th>
                             <th>Phone Number</th>
                             <th>Address</th>
                             <th>Gender</th>
@@ -110,12 +111,14 @@
                         </tbody>
                         <tfoot>
                         <tr>
-                            <th>Name</th>
-                            <th>Position</th>
-                            <th>Office</th>
-                            <th>Age</th>
-                            <th>Start date</th>
-                            <th>Salary</th>
+                            <th>First Name</th>
+                            <th>Last Name</th>
+                            <th>Email</th>
+                            <th>Date Of Birth</th>
+                            <th>Phone Number</th>
+                            <th>Address</th>
+                            <th>Gender</th>
+                            <th>Work Experience</th>
                         </tr>
                         </tfoot>
                     </table>

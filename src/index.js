@@ -1,26 +1,72 @@
 $(document).ready(function() {
     // Intel-tel Section Start
-    let input = document.querySelector('#phone');
+    let input = document.querySelector('#phone'),
+        errorMsg = document.querySelector("#error-msg"),
+        validMsg = document.querySelector("#valid-msg");
 
-    window.intlTelInput(input);
+    // here, the index maps to the error code returned from getValidationError - see readme
+    let errorMap = [ "Invalid number", "Invalid country code", "Too short", "Too long", "Invalid number"];
+
+    let iti = window.intlTelInput(input, {
+        utilsScript: "js/utils.js"
+    }).setCountry('am');
+
+    let reset = function() {
+        input.classList.remove("error");
+        errorMsg.innerHTML = "";
+        errorMsg.classList.add("hide");
+        validMsg.classList.add("hide");
+    };
+
+    // on blur: validate
+    input.addEventListener('blur', function() {
+        reset();
+        if (input.value.trim()) {
+            if (iti.isValidNumber()) {
+                validMsg.classList.remove("hide");
+            } else {
+                input.classList.add("error");
+                let errorCode = iti.getValidationError();
+                errorMsg.innerHTML = errorMap[errorCode];
+                errorMsg.classList.remove("hide");
+            }
+        }
+    });
+
+    // on keyup / change flag: reset
+    input.addEventListener('change', reset);
+    input.addEventListener('keyup', reset);
+    // let isValid = iti.isValidNumber();
+    // console.log(isValid);
 
     // Intel-tel Section End
     localStorage.clear();
 
     $('input[name="datetimes"]').daterangepicker({
-        timePicker: true,
+        timePicker: false,
         startDate: moment().startOf('hour'),
         endDate: moment().startOf('hour').add(32, 'hour'),
         locale: {
-            format: 'M/DD hh:mm A'
+            format: 'M/DD/Y',
+            cancelLabel: 'Clear'
         },
-        opens: 'center'
+        opens: 'center',
+        autoUpdateInput: false,
+    });
+
+    $('input[name="datetimes"]').on('apply.daterangepicker', function(ev, picker) {
+        $(this).val(picker.startDate.format('MM/DD/YYYY') + ' - ' + picker.endDate.format('MM/DD/YYYY'));
+    });
+
+    $('input[name="datetimes"]').on('cancel.daterangepicker', function(ev, picker) {
+        $(this).val('');
     });
 
     $('input[id="dof"]').daterangepicker({
         singleDatePicker: true,
         showDropdowns: true,
-        minYear: 1950
+        minYear: 1950,
+        maxYear: 2000,
     });
 
     $('#data-table').DataTable({
@@ -37,8 +83,18 @@ $(document).ready(function() {
         errors: false,
     };
 
-    $('input[data-valid], textarea[data-valid]').on('keyup', (event) => {
+    if($('input[type="checkbox"]:checked')) {
+        $('#work').attr('data-valid', 'required|min|max|date');
+    }
+
+    $('textarea[data-valid] , .type-text').on('keyup', (event) => {
+        event.preventDefault();
        formValidate($(event.target), $(event.target).val());
+    });
+
+    $('.type-change').on('change', (event) => {
+        event.preventDefault();
+        formValidate($(event.target), $(event.target).val());
     });
 
     let formValidate = (element, value) => {
@@ -49,7 +105,8 @@ $(document).ready(function() {
             'This field value must be string',
             'This field value must be number',
             'Email address are not valid',
-            'Number not valid'
+            'Number not valid',
+            'This field are not date format'
         ];
 
         let rules = element.attr('data-valid').split('|');
@@ -83,11 +140,14 @@ $(document).ready(function() {
             phone(feedbackDiv, errorTexts, value);
         }
 
+        if(rules[3] === 'date') {
+            date(feedbackDiv, errorTexts, value);
+        }
+
     };
 
     let required = (div, text, val) => {
         if(!val) {
-            div.removeClass('is-valid');
             div.addClass('is-invalid').text(text[0]);
             options.errors = true;
         } else {
@@ -99,7 +159,6 @@ $(document).ready(function() {
         let minimum = parseInt(rule.split(':')[1]);
         if(val && val.length < minimum) {
             div.empty();
-            div.removeClass('is-valid');
             div.addClass('is-invalid').text(text[1] + ' ' + (minimum - 1));
             options.errors = true;
         }
@@ -110,7 +169,6 @@ $(document).ready(function() {
 
         if(val && val.length > maximum) {
             div.empty();
-            div.removeClass('is-valid');
             div.addClass('is-invalid').text(text[2] + ' ' + maximum);
             options.errors = true;
         }
@@ -121,7 +179,6 @@ $(document).ready(function() {
 
         if(val && !val.match(regex)) {
             div.empty();
-            div.removeClass('is-valid');
             div.addClass('is-invalid').text(text[3]);
             options.errors = true;
         }
@@ -132,59 +189,54 @@ $(document).ready(function() {
 
         if(val && !val.match(regex)) {
             div.empty();
-            div.removeClass('is-valid');
             div.addClass('is-invalid').text(text[4]);
             options.errors = true;
         }
     };
 
     let email = (div, text, val) => {
-        let regex = /^(?:(?:[\w`~!#$%^&*\-=+;:{}'|,?\/]+(?:(?:\.(?:"(?:\\?[\w`~!#$%^&*\-=+;:{}'|,?\/\.()<>\[\] @]|\\"|\\\\)*"|[\w`~!#$%^&*\-=+;:{}'|,?\/]+))*\.[\w`~!#$%^&*\-=+;:{}'|,?\/]+)?)|(?:"(?:\\?[\w`~!#$%^&*\-=+;:{}'|,?\/\.()<>\[\] @]|\\"|\\\\)+"))@(?:[a-zA-Z\d\-]+(?:\.[a-zA-Z\d\-]+)*|\[\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}\])$/;
+        let regex = /^[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?$/;
 
         if(val && !val.match(regex)) {
             div.empty();
-            div.removeClass('is-valid');
             div.addClass('is-invalid').text(text[5]);
             options.errors = true;
-        } else if (val.match(regex)){
-            div.empty().removeClass('is-invalid').addClass('is-valid').text('✓ Looks Good');
-            options.errors = false;
         }
     };
 
     let phone = (div, text, val) => {
-       let regex = /^([+(\d]{1})(([\d+() -.]){5,16})([+(\d]{1})$/;
+       let regex = /^\+[0-9]?()[0-9](\s|\S)(\d[0-9]{9})$/;
 
        if(val && !val.match(regex)) {
            div.empty();
-           div.removeClass('is-valid').addClass('is-invalid').text(text[6]);
-           options.errors = true;
-       }  else if (val.match(regex)){
-           div.empty().removeClass('is-invalid').addClass('is-valid').text('✓ Looks Good');
-           options.errors = false;
-       }
-
-       if(isNaN(val)) {
-           div.empty();
-           div.removeClass('is-valid').addClass('is-invalid').text(text[4]);
-           console.log(options.errors);
+           div.addClass('is-invalid').text(text[6]);
            options.errors = true;
        }
     };
 
+    let date = (div, text, val) => {
+        let regex = /^(0?[1-9]|1[0-2])[\/](0?[1-9]|[12]\d|3[01])[\/](19|20)\d{2}\s[-]\s(0?[1-9]|1[0-2])[\/](0?[1-9]|[12]\d|3[01])[\/](19|20)\d{2}$/;
+
+        if(val && !val.match(regex)) {
+            div.empty();
+            div.addClass('is-invalid').text(text[7]);
+            options.errors = true;
+        }
+    };
+
     let drawdata = () => {
-        let tbody = $('#tbody');
-        let html = "";
-        let firstName = $('#firstName').val();
-        let lastName = $('#lastName').val();
-        let setEmail = $('#email').val();
-        let dof = $('#dof').val();
-        let about = $('#aboutYou').val();
-        let phone = $('#phone').val();
-        let address = $('#address').val();
-        let gender = $('.gender').val();
-        let work = $('#work').val();
-        let person = JSON.parse(localStorage.getItem('person'));
+        let tbody = $('#tbody'),
+            html = "",
+            firstName = $('#firstName').val(),
+            lastName = $('#lastName').val(),
+            setEmail = $('#email').val(),
+            dof = $('#dof').val(),
+            about = $('#aboutYou').val(),
+            phone = $('#phone').val(),
+            address = $('#address').val(),
+            gender = $('input[type="radio"]:checked').val(),
+            work = $('#work').val(),
+            person = JSON.parse(localStorage.getItem('person'));
         if(!person) {
             person = [];
         }
@@ -224,7 +276,7 @@ $(document).ready(function() {
 
         if(options.errors === false) {
             drawdata();
-        } else{return false}
+        } else {return false}
     });
 
 });

@@ -8,8 +8,10 @@ $(document).ready(function() {
     let errorMap = [ "Invalid number", "Invalid country code", "Too short", "Too long", "Invalid number"];
 
     let iti = window.intlTelInput(input, {
-        utilsScript: "js/utils.js"
-    }).setCountry('am');
+        utilsScript: "int/built/js/utils.js?1537727621611"
+    });
+
+    let armStart = iti.setCountry("am");
 
     let reset = function() {
         input.classList.remove("error");
@@ -40,7 +42,30 @@ $(document).ready(function() {
     // console.log(isValid);
 
     // Intel-tel Section End
-    localStorage.clear();
+    let showPersons = () => {
+        let persons = JSON.parse(localStorage.getItem('person'));
+
+        if(persons) {
+            let tbody = $('#tbody'),
+                html = "";
+
+            $.each(persons, (key, value) => {
+                html += "<tr>";
+
+                html += "<td>" + value.firstName + "</td>";
+                html += "<td>" + value.lastName + "</td>";
+                html += "<td>" + value.email + "</td>";
+                html += "<td>" + value.dof + "</td>";
+                html += "<td>" + value.phone + "</td>";
+                html += "<td>" + value.address + "</td>";
+                html += "<td>" + value.gender + "</td>";
+                html += "<td>" + value.work + "</td>";
+
+                html += "</tr>"
+            });
+            tbody.empty().append(html)
+        }
+    };
 
     $('input[name="datetimes"]').daterangepicker({
         timePicker: false,
@@ -56,17 +81,18 @@ $(document).ready(function() {
 
     $('input[name="datetimes"]').on('apply.daterangepicker', function(ev, picker) {
         $(this).val(picker.startDate.format('MM/DD/YYYY') + ' - ' + picker.endDate.format('MM/DD/YYYY'));
+        formValidate($(this), $(this).val());
     });
 
     $('input[name="datetimes"]').on('cancel.daterangepicker', function(ev, picker) {
         $(this).val('');
+        formValidate($(this), $(this).val());
     });
 
     $('input[id="dof"]').daterangepicker({
         singleDatePicker: true,
         showDropdowns: true,
         minYear: 1950,
-        maxYear: 2000,
     });
 
     $('#data-table').DataTable({
@@ -83,8 +109,10 @@ $(document).ready(function() {
         errors: false,
     };
 
-    if($('input[type="checkbox"]:checked')) {
-        $('#work').attr('data-valid', 'required|min|max|date');
+    if($('#customCheck1:checked')) {
+        $('input[name="datetimes"]').attr('data-valid', 'required|min|max|date');
+    } else {
+        $('input[name="datetimes"]').removeAttr('data-valid');
     }
 
     $('textarea[data-valid] , .type-text').on('keyup', (event) => {
@@ -93,7 +121,6 @@ $(document).ready(function() {
     });
 
     $('.type-change').on('change', (event) => {
-        event.preventDefault();
         formValidate($(event.target), $(event.target).val());
     });
 
@@ -224,59 +251,52 @@ $(document).ready(function() {
         }
     };
 
-    let drawdata = () => {
-        let tbody = $('#tbody'),
-            html = "",
-            firstName = $('#firstName').val(),
+    let setPersons = () => {
+        let firstName = $('#firstName').val(),
             lastName = $('#lastName').val(),
             setEmail = $('#email').val(),
             dof = $('#dof').val(),
-            about = $('#aboutYou').val(),
             phone = $('#phone').val(),
             address = $('#address').val(),
             gender = $('input[type="radio"]:checked').val(),
             work = $('#work').val(),
             person = JSON.parse(localStorage.getItem('person'));
+
         if(!person) {
             person = [];
+        } else {
+            showPersons();
         }
+
         person.push( {
             firstName: firstName,
             lastName: lastName,
             email: setEmail,
             dof: dof,
-            about: about,
             phone: phone,
             address: address,
             gender: gender,
             work: work
         });
+
         localStorage.setItem('person', JSON.stringify(person));
 
-        $.each(person, (key, value) => {
-                html += "<tr>";
 
-                html += "<td>" + value.firstName + "</td>";
-                html += "<td>" + value.lastName + "</td>";
-                html += "<td>" + value.email + "</td>";
-                html += "<td>" + value.dof + "</td>";
-                html += "<td>" + value.phone + "</td>";
-                html += "<td>" + value.address + "</td>";
-                html += "<td>" + value.gender + "</td>";
-                html += "<td>" + value.work + "</td>";
-
-                html += "</tr>"
-        });
-        tbody.empty().append(html);
     };
 
+    showPersons();
 
     $('.submit').click((event) => {
         event.preventDefault();
-
         if(options.errors === false) {
-            drawdata();
+            console.log(10);
+            setPersons();
         } else {return false}
+    });
+
+    $('#reset').click(()  => {
+        localStorage.clear('person');
+        $('#tbody').empty();
     });
 
 });

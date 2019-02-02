@@ -26,6 +26,20 @@
   color: green;
 }
 
+#valid-msg {
+  color: green;
+}
+#valid-msg.hide {
+  display: none;
+}
+
+#error-msg {
+  color: red;
+}
+#error-msg.hide {
+  display: none;
+}
+
 /* dashboard End */
 
 /*# sourceMappingURL=main.css.map */

@@ -26,6 +26,10 @@
   color: green;
 }
 
+#error-msg {
+  font-size: 14px;
+}
+
 #valid-msg {
   color: green;
 }

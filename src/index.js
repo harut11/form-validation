@@ -1,8 +1,7 @@
 $(document).ready(function() {
     // Intel-tel Section Start
     let input = document.querySelector('#phone'),
-        errorMsg = document.querySelector("#error-msg"),
-        validMsg = document.querySelector("#valid-msg");
+        errorMsg = document.querySelector("#error-msg");
 
     // here, the index maps to the error code returned from getValidationError - see readme
     let errorMap = [ "Invalid number", "Invalid country code", "Too short", "Too long", "Invalid number"];
@@ -11,13 +10,12 @@ $(document).ready(function() {
         utilsScript: "int/built/js/utils.js?1537727621611"
     });
 
-    let armStart = iti.setCountry("am");
+    iti.setCountry("am");
 
     let reset = function() {
         input.classList.remove("error");
         errorMsg.innerHTML = "";
         errorMsg.classList.add("hide");
-        validMsg.classList.add("hide");
     };
 
     // on blur: validate
@@ -25,7 +23,7 @@ $(document).ready(function() {
         reset();
         if (input.value.trim()) {
             if (iti.isValidNumber()) {
-                validMsg.classList.remove("hide");
+
             } else {
                 input.classList.add("error");
                 let errorCode = iti.getValidationError();
@@ -38,8 +36,6 @@ $(document).ready(function() {
     // on keyup / change flag: reset
     input.addEventListener('change', reset);
     input.addEventListener('keyup', reset);
-    // let isValid = iti.isValidNumber();
-    // console.log(isValid);
 
     // Intel-tel Section End
     let showPersons = () => {
@@ -60,6 +56,7 @@ $(document).ready(function() {
                 html += "<td>" + value.address + "</td>";
                 html += "<td>" + value.gender + "</td>";
                 html += "<td>" + value.work + "</td>";
+                html += "<td>" + value.bio + "</td>";
 
                 html += "</tr>"
             });
@@ -109,12 +106,6 @@ $(document).ready(function() {
         errors: false,
     };
 
-    if($('#customCheck1:checked')) {
-        $('input[name="datetimes"]').attr('data-valid', 'required|min|max|date');
-    } else {
-        $('input[name="datetimes"]').removeAttr('data-valid');
-    }
-
     $('textarea[data-valid] , .type-text').on('keyup', (event) => {
         event.preventDefault();
        formValidate($(event.target), $(event.target).val());
@@ -123,6 +114,16 @@ $(document).ready(function() {
     $('.type-change').on('change', (event) => {
         formValidate($(event.target), $(event.target).val());
     });
+
+    let afterValidate = () => {
+        let inputs = $('input[data-valid]'),
+            textarea = $('textarea[data-valid]');
+
+        for(let i = 0; i < inputs.length; i++) {
+            formValidate($(inputs[i]), $(inputs[i]).val());
+        }
+        formValidate(textarea, textarea.val());
+    };
 
     let formValidate = (element, value) => {
         let errorTexts = [
@@ -136,40 +137,43 @@ $(document).ready(function() {
             'This field are not date format'
         ];
 
-        let rules = element.attr('data-valid').split('|');
-        let feedbackDiv = element.closest('.form-group').find('.feedback');
+        let rules = element.attr('data-valid').split('|'),
+            feedbackDiv = element.closest('.form-group').find('.feedback');
 
-        if(rules[0] === 'required') {
-            required(feedbackDiv, errorTexts, value);
-        }
+        $.map(rules, (key) => {
 
-        if(rules[1]) {
-            min(feedbackDiv, errorTexts, value, rules[1]);
-        }
+            if(key.includes('required')) {
+                required(feedbackDiv, errorTexts, value);
+            }
 
-        if(rules[2]) {
-            max(feedbackDiv, errorTexts, value, rules[2]);
-        }
+            if(key.includes('min')) {
+                min(feedbackDiv, errorTexts, value, key);
+            }
 
-        if(rules[3] === 'string') {
-            string(feedbackDiv, errorTexts, value);
-        }
+            if(key.includes('max')) {
+                max(feedbackDiv, errorTexts, value, key);
+            }
 
-        if(rules[3] === 'integer') {
-            integer(feedbackDiv, errorTexts, value);
-        }
+            if(key.includes('string')) {
+                string(feedbackDiv, errorTexts, value);
+            }
 
-        if(rules[3] === 'email') {
-            email(feedbackDiv, errorTexts, value);
-        }
+            if(key.includes('integer')) {
+                integer(feedbackDiv, errorTexts, value);
+            }
 
-        if(rules[3] === 'phone') {
-            phone(feedbackDiv, errorTexts, value);
-        }
+            if(key.includes('email')) {
+                email(feedbackDiv, errorTexts, value);
+            }
 
-        if(rules[3] === 'date') {
-            date(feedbackDiv, errorTexts, value);
-        }
+            if(key.includes('phone')) {
+                phone(feedbackDiv, errorTexts, value);
+            }
+
+            if(key.includes('date')) {
+                date(feedbackDiv, errorTexts, value);
+            }
+        });
 
     };
 
@@ -177,14 +181,16 @@ $(document).ready(function() {
         if(!val) {
             div.addClass('is-invalid').text(text[0]);
             options.errors = true;
+            options['errorType'] = 'required';
         } else {
             div.empty();
+            options.errors = false;
         }
     };
 
     let min = (div, text, val, rule) => {
         let minimum = parseInt(rule.split(':')[1]);
-        if(val && val.length < minimum) {
+        if(minimum && val && val.length < minimum) {
             div.empty();
             div.addClass('is-invalid').text(text[1] + ' ' + (minimum - 1));
             options.errors = true;
@@ -194,10 +200,11 @@ $(document).ready(function() {
     let max = (div, text, val, rule) => {
         let maximum = parseInt(rule.split(':')[1]);
 
-        if(val && val.length > maximum) {
+        if(maximum && val && val.length > maximum) {
             div.empty();
             div.addClass('is-invalid').text(text[2] + ' ' + maximum);
             options.errors = true;
+            options['errorType'] = 'max';
         }
     };
 
@@ -208,6 +215,7 @@ $(document).ready(function() {
             div.empty();
             div.addClass('is-invalid').text(text[3]);
             options.errors = true;
+            options['errorType'] = 'string';
         }
     };
 
@@ -218,6 +226,7 @@ $(document).ready(function() {
             div.empty();
             div.addClass('is-invalid').text(text[4]);
             options.errors = true;
+            options['errorType'] = 'integer';
         }
     };
 
@@ -228,6 +237,7 @@ $(document).ready(function() {
             div.empty();
             div.addClass('is-invalid').text(text[5]);
             options.errors = true;
+            options['errorType'] = 'email';
         }
     };
 
@@ -238,6 +248,7 @@ $(document).ready(function() {
            div.empty();
            div.addClass('is-invalid').text(text[6]);
            options.errors = true;
+           options['errorType'] = 'phone';
        }
     };
 
@@ -248,24 +259,24 @@ $(document).ready(function() {
             div.empty();
             div.addClass('is-invalid').text(text[7]);
             options.errors = true;
+            options['errorType'] = 'date';
         }
     };
 
     let setPersons = () => {
-        let firstName = $('#firstName').val(),
-            lastName = $('#lastName').val(),
-            setEmail = $('#email').val(),
-            dof = $('#dof').val(),
-            phone = $('#phone').val(),
-            address = $('#address').val(),
+        let firstName = $('#firstName').val().trim(),
+            lastName = $('#lastName').val().trim(),
+            setEmail = $('#email').val().trim(),
+            dof = $('#dof').val().trim(),
+            phone = $('#phone').val().trim(),
+            address = $('#address').val().trim(),
             gender = $('input[type="radio"]:checked').val(),
-            work = $('#work').val(),
+            work = $('#work').val().trim(),
+            bio = $('#aboutYou').val().trim(),
             person = JSON.parse(localStorage.getItem('person'));
 
         if(!person) {
             person = [];
-        } else {
-            showPersons();
         }
 
         person.push( {
@@ -276,7 +287,8 @@ $(document).ready(function() {
             phone: phone,
             address: address,
             gender: gender,
-            work: work
+            work: work,
+            bio: bio,
         });
 
         localStorage.setItem('person', JSON.stringify(person));
@@ -286,12 +298,23 @@ $(document).ready(function() {
 
     showPersons();
 
+    if($('#collapse').hasClass('show')) {
+        $('#work').attr('data-valid', 'required|date');
+    } else {
+        $('#work').removeAttr('data-valid');
+    }
+
     $('.submit').click((event) => {
         event.preventDefault();
+        afterValidate();
+
         if(options.errors === false) {
-            console.log(10);
             setPersons();
-        } else {return false}
+        } else {
+            alert('Please fix errors before submit!');
+            return false;
+        }
+        showPersons();
     });
 
     $('#reset').click(()  => {

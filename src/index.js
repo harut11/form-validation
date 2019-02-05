@@ -38,33 +38,68 @@ $(document).ready(function() {
     input.addEventListener('keyup', reset);
 
     // Intel-tel Section End
+
+    let table = $('#data-table').DataTable({
+        scrollY:        300,
+        deferRender:    false,
+        scroller:       true,
+        // columnDefs: [ {
+        //     orderable: false,
+        //     className: 'select-checkbox',
+        //     targets:   0
+        // } ],
+        // select: {
+        //     style:    'os',
+        //     selector: 'td:first-child'
+        // },
+        // order: [[ 1, 'asc' ]]
+    });
+
+
+    let options = {
+        errors: false,
+    };
+
     let showPersons = () => {
         let persons = JSON.parse(localStorage.getItem('person'));
 
         if(persons) {
-            let tbody = $('#tbody'),
-                html = "";
-
             $.each(persons, (key, value) => {
-                html += "<tr>";
-
-                html += "<td>" + value.firstName + "</td>";
-                html += "<td>" + value.lastName + "</td>";
-                html += "<td>" + value.email + "</td>";
-                html += "<td>" + value.dof + "</td>";
-                html += "<td>" + value.phone + "</td>";
-                html += "<td>" + value.address + "</td>";
-                html += "<td>" + value.gender + "</td>";
-                html += "<td>" + value.work + "</td>";
-                html += "<td>" + value.bio + "</td>";
-
-                html += "</tr>"
+                table.row.add([
+                    // '<input type="checkbox">',
+                    value.firstName,
+                    value.lastName,
+                    value.email,
+                    value.dof,
+                    value.phone,
+                    value.address,
+                    value.gender,
+                    value.work,
+                ]).draw(false);
             });
-            tbody.empty().append(html)
         }
     };
 
-    $('input[name="datetimes"]').daterangepicker({
+    let showPerson = () => {
+        let persons = JSON.parse(localStorage.getItem('person')),
+            person = persons[persons.length - 1];
+
+        table.row.add([
+            person.firstName,
+            person.lastName,
+            person.email,
+            person.dof,
+            person.phone,
+            person.address,
+            person.gender,
+            person.work,
+        ]).draw(false);
+    };
+
+    let dateTimes = $('input[name="datetimes"]');
+
+
+    dateTimes.daterangepicker({
         timePicker: false,
         startDate: moment().startOf('hour'),
         endDate: moment().startOf('hour').add(32, 'hour'),
@@ -76,43 +111,41 @@ $(document).ready(function() {
         autoUpdateInput: false,
     });
 
-    $('input[name="datetimes"]').on('apply.daterangepicker', function(ev, picker) {
+    dateTimes.on('apply.daterangepicker', function(ev, picker) {
         $(this).val(picker.startDate.format('MM/DD/YYYY') + ' - ' + picker.endDate.format('MM/DD/YYYY'));
         formValidate($(this), $(this).val());
     });
 
-    $('input[name="datetimes"]').on('cancel.daterangepicker', function(ev, picker) {
+    dateTimes.on('cancel.daterangepicker', function() {
         $(this).val('');
         formValidate($(this), $(this).val());
     });
 
-    $('input[id="dof"]').daterangepicker({
+    let dof = $('input[id="dof"]');
+
+    dof.on('apply.daterangepicker', function(ev, picker) {
+        $(this).val(picker.endDate.format('MM/DD/YYYY'));
+        formValidate($(this), $(this).val().trim());
+    });
+
+    dof.daterangepicker({
         singleDatePicker: true,
         showDropdowns: true,
         minYear: 1950,
-    });
-
-    $('#data-table').DataTable({
-        order: [[2, 'asc']],
-        rowGroup: {
-            dataSrc: 2
+        maxYear: 2000,
+        autoUpdateInput: false,
+        locale: {
+            format: 'MM/DD/YYYY',
         },
-        scrollY:        300,
-        deferRender:    false,
-        scroller:       true
     });
-
-    let options = {
-        errors: false,
-    };
 
     $('textarea[data-valid] , .type-text').on('keyup', (event) => {
         event.preventDefault();
        formValidate($(event.target), $(event.target).val());
     });
 
-    $('.type-change').on('change', (event) => {
-        formValidate($(event.target), $(event.target).val());
+    $('.type-change').change((event) => {
+        formValidate($(event.target), $(event.target).val().trim());
     });
 
     let afterValidate = () => {
@@ -141,7 +174,6 @@ $(document).ready(function() {
             feedbackDiv = element.closest('.form-group').find('.feedback');
 
         $.map(rules, (key) => {
-
             if(key.includes('required')) {
                 required(feedbackDiv, errorTexts, value);
             }
@@ -172,6 +204,10 @@ $(document).ready(function() {
 
             if(key.includes('date')) {
                 date(feedbackDiv, errorTexts, value);
+            }
+
+            if(key.includes('two')) {
+                dateTwo(feedbackDiv, errorTexts, value);
             }
         });
 
@@ -231,7 +267,7 @@ $(document).ready(function() {
     };
 
     let email = (div, text, val) => {
-        let regex = /^[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?$/;
+        let regex = /^([A-Z|a-z|0-9](\.|_){0,1})+[A-Z|a-z|0-9]\@([A-Z|a-z|0-9])+((\.){0,1}[A-Z|a-z|0-9]){2}\.[a-z]{2,3}$/;
 
         if(val && !val.match(regex)) {
             div.empty();
@@ -259,7 +295,16 @@ $(document).ready(function() {
             div.empty();
             div.addClass('is-invalid').text(text[7]);
             options.errors = true;
-            options['errorType'] = 'date';
+        }
+    };
+
+    let dateTwo = (div, text, val) => {
+        let regex = /^(0?[1-9]|1[0-2])[\/](0?[1-9]|[12]\d|3[01])[\/](19|20)\d{2}$/;
+
+        if(val && !val.match(regex)) {
+            div.empty();
+            div.addClass('is-invalid').text(text[7]);
+            options.errors = true;
         }
     };
 
@@ -292,34 +337,34 @@ $(document).ready(function() {
         });
 
         localStorage.setItem('person', JSON.stringify(person));
-
-
     };
-
     showPersons();
 
-    if($('#collapse').hasClass('show')) {
-        $('#work').attr('data-valid', 'required|date');
-    } else {
-        $('#work').removeAttr('data-valid');
-    }
-
+    $('#customCheck1').change(function () {
+        setTimeout(function () {
+            if($('#collapse').hasClass('show')) {
+                $('#work').attr('data-valid', 'required|date');
+            } else {
+                $('#work').removeAttr('data-valid');
+            }
+        }, 500);
+    });
     $('.submit').click((event) => {
         event.preventDefault();
         afterValidate();
 
         if(options.errors === false) {
             setPersons();
+            showPerson();
+
         } else {
             alert('Please fix errors before submit!');
             return false;
         }
-        showPersons();
+
     });
 
     $('#reset').click(()  => {
         localStorage.clear('person');
-        $('#tbody').empty();
     });
-
 });

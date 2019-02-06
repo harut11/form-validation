@@ -45,11 +45,6 @@ $(document).ready(function() {
         scroller:       true,
     });
 
-
-    let options = {
-        errors: false,
-    };
-
     let showPersons = () => {
         let persons = JSON.parse(localStorage.getItem('person'));
 
@@ -132,7 +127,7 @@ $(document).ready(function() {
 
     $('textarea[data-valid] , .type-text').on('keyup', (event) => {
         event.preventDefault();
-       formValidate($(event.target), $(event.target).val());
+       formValidate($(event.target), $(event.target).val().toLowerCase());
     });
 
     $('.type-change').change((event) => {
@@ -143,11 +138,12 @@ $(document).ready(function() {
     let afterValidate = () => {
         let inputs = $('input[data-valid]'),
             textarea = $('textarea[data-valid]');
-
+        let _errors = 0;
         for(let i = 0; i < inputs.length; i++) {
-            formValidate($(inputs[i]), $(inputs[i]).val());
+            if(formValidate($(inputs[i]), $(inputs[i]).val())) _errors++
         }
-        formValidate(textarea, textarea.val());
+        if(formValidate(textarea, textarea.val())) _errors++;
+        return _errors
     };
 
     let formValidate = (element, value) => {
@@ -162,68 +158,78 @@ $(document).ready(function() {
             'This field is not date format'
         ];
 
+        let hasError = false;
+
         let rules = element.attr('data-valid').split('|'),
             feedbackDiv = element.closest('.form-group').find('.feedback');
+        let errorsIterator = 0;
 
-        $.map(rules, (key) => {
-            if(key.includes('required')) {
-                required(feedbackDiv, errorTexts, value);
+        for(let i = 0; i < rules.length; i++){
+            let key = rules[i];
+            if(key === 'required') {
+                hasError = required(feedbackDiv, errorTexts, value);
+                if(!hasError) errorsIterator++
             }
 
             if(key.includes('min')) {
-                min(feedbackDiv, errorTexts, value, key);
+                hasError = min(feedbackDiv, errorTexts, value, key);
+                if(!hasError) errorsIterator++
             }
 
             if(key.includes('max')) {
-                max(feedbackDiv, errorTexts, value, key);
+                hasError = max(feedbackDiv, errorTexts, value, key);
+                if(!hasError) errorsIterator++
             }
 
-            if(key === 'string') {
-                string(feedbackDiv, errorTexts, value);
+            if(key === 'name') {
+                hasError = name(feedbackDiv, errorTexts, value);
+                if(!hasError) errorsIterator++
             }
 
             if(key === 'integer') {
-                integer(feedbackDiv, errorTexts, value);
+                hasError = integer(feedbackDiv, errorTexts, value);
+                if(!hasError) errorsIterator++
             }
 
             if(key === 'email') {
-                email(feedbackDiv, errorTexts, value);
+                hasError = email(feedbackDiv, errorTexts, value);
+                if(!hasError) errorsIterator++
             }
 
             if(key === 'date') {
-                date(feedbackDiv, errorTexts, value);
+                hasError = date(feedbackDiv, errorTexts, value);
+                if(!hasError) errorsIterator++
             }
 
             if(key === 'two') {
-                dateTwo(feedbackDiv, errorTexts, value);
+                hasError = dateTwo(feedbackDiv, errorTexts, value);
+                if(!hasError) errorsIterator++
             }
-        });
-
+        }
+        return errorsIterator;
     };
 
     let required = (div, text, val) => {
-        if(!val) {
+        if(!val.trim()) {
+            div.empty();
             div.addClass('is-invalid').text(text[0]);
-            options.errors = true;
-            options['errorType'] = 'required';
             return false;
         } else {
             div.empty();
-            options.errors =false;
+            return true
         }
-        return true;
     };
 
     let min = (div, text, val, rule) => {
         let minimum = parseInt(rule.split(':')[1]);
-
-        if(minimum && val && val.length < minimum) {
+        if(minimum && val && val.length < minimum || !val) {
             div.empty();
             div.addClass('is-invalid').text(text[1] + ' ' + (minimum - 1));
-            options.errors = true;
             return false;
+        }else {
+            div.empty();
+            return true
         }
-        return true;
     };
 
     let max = (div, text, val, rule) => {
@@ -232,24 +238,22 @@ $(document).ready(function() {
         if(maximum && val && val.length > maximum) {
             div.empty();
             div.addClass('is-invalid').text(text[2] + ' ' + maximum);
-            options.errors = true;
-            options['errorType'] = 'max';
             return false;
+        }else {
+            return true
         }
-        return true;
     };
 
-    let string = (div, text, val) => {
-        let regex = /^[a-zA-Z]+$/;
+    let name = (div, text, val) => {
+        let regex = /^(([A-za-z]+[\s]{1}[A-za-z]+)|([A-Za-z]+))$/;
 
         if(val && !val.match(regex)) {
             div.empty();
             div.addClass('is-invalid').text(text[3]);
-            options.errors = true;
-            options['errorType'] = 'string';
             return false;
+        } else {
+            return true;
         }
-        return true;
     };
 
     let integer = (div, text, val) => {
@@ -258,11 +262,10 @@ $(document).ready(function() {
         if(val && !val.match(regex)) {
             div.empty();
             div.addClass('is-invalid').text(text[4]);
-            options.errors = true;
-            options['errorType'] = 'integer';
             return false;
+        } else {
+            return true;
         }
-        return true;
     };
 
     let email = (div, text, val) => {
@@ -271,11 +274,10 @@ $(document).ready(function() {
         if(val && !val.match(regex)) {
             div.empty();
             div.addClass('is-invalid').text(text[5]);
-            options.errors = true;
-            options['errorType'] = 'email';
             return false;
+        }  else {
+            return true;
         }
-        return true;
     };
 
     let date = (div, text, val) => {
@@ -284,10 +286,10 @@ $(document).ready(function() {
         if(val && !val.match(regex)) {
             div.empty();
             div.addClass('is-invalid').text(text[7]);
-            options.errors = true;
             return false;
+        } else {
+            return true;
         }
-        return true;
     };
 
     let dateTwo = (div, text, val) => {
@@ -296,10 +298,10 @@ $(document).ready(function() {
         if(val && !val.match(regex)) {
             div.empty();
             div.addClass('is-invalid').text(text[7]);
-            options.errors = true;
             return false;
+        } else {
+            return true;
         }
-        return true;
     };
 
     let setPersons = () => {
@@ -345,15 +347,21 @@ $(document).ready(function() {
     });
 
     $('.rowCheck').change((event) => {
-        $(event.target).closest('tr[role="row"]').toggleClass('mustRemove');
+        let row = $(event.target).closest('tr[role="row"]');
+
+        if(row.attr('mustRemove')) {
+            row.removeAttr('mustRemove');
+        } else {
+            row.attr('mustRemove', 'true');
+        }
+
     });
 
     $('.submit').click((event) => {
         event.preventDefault();
-        afterValidate();
-        console.log(options.errors);
-
-        if(options.errors === false) {
+        let a = afterValidate();
+        console.log(a);
+        if(!a) {
             setPersons();
             showPerson();
 
@@ -361,15 +369,24 @@ $(document).ready(function() {
             alert('Please fix errors before submit!');
             return false;
         }
-
     });
 
     $('#reset').click(()  => {
-        $('.mustRemove').remove();
-        let persons = JSON.parse(localStorage.getItem('person'));
+        let persons = JSON.parse(localStorage.getItem('person')),
+            td = $('tr[mustRemove="true"]').find('td'),
+            space = Array.from(persons);
 
-        for(let i = 0; i < persons.length; i++) {
-            localStorage.removeItem(persons[i]);
+        for(let i = 0; i < space.length; i++) {
+            let localEmail = space[i].email;
+
+            for(let s = 0; s < td.length; s++) {
+                let str = $(td[s]).text().trim();
+                if(localEmail === str) {
+                    space.splice(i, 1);
+                    localStorage.setItem('person', JSON.stringify(space));
+                }
+            }
         }
+        $('[mustRemove="true"]').remove();
     });
 });

@@ -119,10 +119,9 @@ $(document).ready(function() {
         showDropdowns: true,
         minYear: 1950,
         maxYear: 2000,
+        startDate: '01/01/1951',
+        endDate: '12/31/2000',
         autoUpdateInput: false,
-        locale: {
-            format: 'MM/DD/YYYY',
-        },
     });
 
     $('textarea[data-valid] , .type-text').on('keyup', (event) => {
@@ -349,18 +348,18 @@ $(document).ready(function() {
     $('.rowCheck').change((event) => {
         let row = $(event.target).closest('tr[role="row"]');
 
-        if(row.attr('mustRemove')) {
-            row.removeAttr('mustRemove');
-        } else {
-            row.attr('mustRemove', 'true');
+        if(row) {
+            if(row.attr('mustRemove')) {
+                row.removeAttr('mustRemove');
+            } else {
+                row.attr('mustRemove', 'true');
+            }
         }
-
     });
 
     $('.submit').click((event) => {
         event.preventDefault();
         let a = afterValidate();
-        console.log(a);
         if(!a) {
             setPersons();
             showPerson();
@@ -373,7 +372,8 @@ $(document).ready(function() {
 
     $('#reset').click(()  => {
         let persons = JSON.parse(localStorage.getItem('person')),
-            td = $('tr[mustRemove="true"]').find('td'),
+            tr = $('tr[mustRemove="true"]'),
+            td = tr.find('td'),
             space = Array.from(persons);
 
         for(let i = 0; i < space.length; i++) {
@@ -387,6 +387,6 @@ $(document).ready(function() {
                 }
             }
         }
-        $('[mustRemove="true"]').remove();
+        tr.remove();
     });
 });

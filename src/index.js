@@ -41,9 +41,18 @@ $(document).ready(function() {
 
     let table = $('#data-table').DataTable({
         scrollY:        300,
+        scrollX: 300,
         deferRender:    false,
-        scroller:       true,
+        "columnDefs": [{
+            "orderable": false,
+            "targets": 0,
+        },{
+            className: 'person',
+            "targets": '_all',
+        }]
     });
+
+    $('.person').find('td').css('color', 'red');
 
     let showPersons = () => {
         let persons = JSON.parse(localStorage.getItem('person'));
@@ -117,10 +126,9 @@ $(document).ready(function() {
     dof.daterangepicker({
         singleDatePicker: true,
         showDropdowns: true,
-        minYear: 1950,
-        maxYear: 2000,
-        startDate: '01/01/1951',
-        endDate: '12/31/2000',
+        minDate: '01/01/1950',
+        startDate: '01/01/1980',
+        maxDate: '12/31/2000',
         autoUpdateInput: false,
     });
 
@@ -139,9 +147,9 @@ $(document).ready(function() {
             textarea = $('textarea[data-valid]');
         let _errors = 0;
         for(let i = 0; i < inputs.length; i++) {
-            if(formValidate($(inputs[i]), $(inputs[i]).val())) _errors++
+            if(formValidate($(inputs[i]), $(inputs[i]).val().trim())) _errors++
         }
-        if(formValidate(textarea, textarea.val())) _errors++;
+        if(formValidate(textarea, textarea.val().trim())) _errors++;
         return _errors
     };
 
@@ -154,7 +162,8 @@ $(document).ready(function() {
             'This field value must be number',
             'Email address is not valid',
             'Number not valid',
-            'This field is not date format'
+            'This field is not date format',
+            'This mail was registered',
         ];
 
         let hasError = false;
@@ -202,6 +211,11 @@ $(document).ready(function() {
 
             if(key === 'two') {
                 hasError = dateTwo(feedbackDiv, errorTexts, value);
+                if(!hasError) errorsIterator++
+            }
+
+            if(key === 'unique') {
+                hasError = unique(feedbackDiv, errorTexts, value);
                 if(!hasError) errorsIterator++
             }
         }
@@ -303,6 +317,24 @@ $(document).ready(function() {
         }
     };
 
+    let unique = (div, text, val) => {
+        let persons = JSON.parse(localStorage.getItem('person')),
+            arr = Array.from(persons),
+            localEmail = null;
+
+            for(let i = 0; i < arr.length; i++) {
+                localEmail = arr[i].email;
+            }
+
+            if(val === localEmail) {
+                div.empty();
+                div.addClass('is-invalid').text(text[8]);
+                return false;
+            } else {
+                return true;
+            }
+    };
+
     let setPersons = () => {
         let firstName = $('#firstName').val().trim(),
             lastName = $('#lastName').val().trim(),
@@ -345,14 +377,14 @@ $(document).ready(function() {
         }, 500);
     });
 
-    $('.rowCheck').change((event) => {
+    $(document).on('change','.rowCheck', (event) => {
         let row = $(event.target).closest('tr[role="row"]');
 
         if(row) {
-            if(row.attr('mustRemove')) {
-                row.removeAttr('mustRemove');
-            } else {
+            if(!row.attr('mustRemove')) {
                 row.attr('mustRemove', 'true');
+            } else {
+                row.removeAttr('mustRemove');
             }
         }
     });
@@ -363,9 +395,10 @@ $(document).ready(function() {
         if(!a) {
             setPersons();
             showPerson();
+            $('input').not('[type="radio"]').val('');
+            $('textarea').val('');
 
         } else {
-            alert('Please fix errors before submit!');
             return false;
         }
     });
@@ -382,11 +415,16 @@ $(document).ready(function() {
             for(let s = 0; s < td.length; s++) {
                 let str = $(td[s]).text().trim();
                 if(localEmail === str) {
-                    space.splice(i, 1);
+                    trCount = null;
+                    for(let d = 1; d <= tr.length; d++) {
+                        trCount++;
+                    }
+                    space.splice(space[i], trCount);
+                    console.log(space, trCount);
                     localStorage.setItem('person', JSON.stringify(space));
                 }
             }
+            tr.remove();
         }
-        tr.remove();
     });
 });

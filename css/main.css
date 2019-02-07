@@ -44,6 +44,14 @@
   display: none;
 }
 
+.person {
+  padding: 0 10px;
+}
+.person:not(last-child) {
+  border-right: 1px solid #eee;
+  border-top: 1px solid #eee;
+}
+
 /* dashboard End */
 
 /*# sourceMappingURL=main.css.map */

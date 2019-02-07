@@ -3,6 +3,8 @@
 <head>
     <title>Custom Validation Task</title>
     <meta charset="UTF-8">
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.1/css/all.css"
+          integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">
     <link rel="stylesheet" type="text/css" href="css/bootstrap.min.css">
     <link rel="stylesheet" type="text/css" href="int/build/css/intlTelInput.min.css">
     <link rel="stylesheet" type="text/css" href="css/daterangepicker.css">
@@ -19,13 +21,13 @@
                             <div class="form-group col-lg-6">
                                 <label for="firstName">First Name</label>
                                 <input type="text" class="form-control type-text" id="firstName"
-                                       placeholder="Enter Your First Name" data-valid="required|min:4|max:20|name">
+                                       placeholder="Enter Your First Name" data-valid="required|min:3|max:20|name">
                                 <div class="feedback"></div>
                             </div>
                             <div class="form-group col-lg-6">
                                 <label for="lastName">Last Name</label>
                                 <input type="text" class="form-control type-text" id="lastName" placeholder="Enter Your Last Name"
-                                       data-valid="required|min:4|max:30|name">
+                                       data-valid="required|min:3|max:30|name">
                                 <div class="feedback"></div>
                             </div>
                         </div>
@@ -33,7 +35,7 @@
                             <div class="form-group col-lg-6">
                                 <label for="email">Email</label>
                                 <input type="email" class="form-control type-text" id="email" placeholder="Enter Your Email"
-                                       data-valid="required|email">
+                                       data-valid="required|email|unique">
                                 <div class="feedback"></div>
                             </div>
                             <div class="col-lg-6">
@@ -94,7 +96,28 @@
                         </div>
                     </form>
                     <button type="submit" class="btn btn-success mt-3 submit">Add Person</button>
-                    <button type="button" class="btn btn-danger mt-3 float-right" id="reset">Delete Person(s)</button>
+                    <button type="button" id="delete" class="btn btn-danger mt-3 float-right" data-toggle="modal"  data-target="#exampleModal">Delete Person(s)
+                    </button>
+                    <!-- Modal -->
+                    <div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                        <div class="modal-dialog" role="document">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h5 class="modal-title" id="exampleModalLabel">Delete Person(s)</h5>
+                                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                        <span aria-hidden="true"></span>
+                                    </button>
+                                </div>
+                                <div class="modal-body">
+                                    Realy? you want delete our best berson(s)? <i class="far fa-surprise" style="font-size:40px;"></i>
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-success" data-dismiss="modal">No</button>
+                                    <button type="button" class="btn btn-danger" data-dismiss="modal"  id="reset">Yes</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
                 <div class="col-md-12 mt-5">
                     <table id="data-table" class="display" style="width:100%">
